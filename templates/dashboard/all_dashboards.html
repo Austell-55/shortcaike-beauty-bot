@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Shortcaike Beauty – Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #F9F6F2; font-family: 'Inter', sans-serif; color: #2D2A26; }
+        .card-modern { background: #FFFFFF; border-radius: 2rem; box-shadow: 0 12px 30px rgba(0,0,0,0.03), 0 4px 8px rgba(0,0,0,0.02); }
+        .btn-soft { background-color: #C48E7A; color: white; padding: 0.6rem 1.4rem; border-radius: 2rem; font-weight: 500; transition: 0.2s; border: none; cursor: pointer; }
+        .btn-soft:hover { background-color: #b07a66; transform: scale(0.98); }
+        .btn-outline { background: transparent; border: 1px solid #E2D9D2; color: #2D2A26; padding: 0.5rem 1.2rem; border-radius: 2rem; font-size: 0.85rem; cursor: pointer; }
+        .btn-outline:hover { background: #F4EFEA; }
+        .btn-danger { background-color: #D97A7A; color: white; padding: 0.4rem 0.8rem; border-radius: 1.5rem; font-size: 0.8rem; border: none; cursor: pointer; }
+        .btn-success { background-color: #8BA88B; color: white; padding: 0.4rem 0.8rem; border-radius: 1.5rem; font-size: 0.8rem; border: none; cursor: pointer; }
+        .input-modern { width: 100%; padding: 0.8rem 1rem; background-color: #FEFCF9; border: 1px solid #EDE3DB; border-radius: 1.5rem; font-size: 0.9rem; }
+        .input-modern:focus { outline: none; border-color: #C48E7A; box-shadow: 0 0 0 3px rgba(196,142,122,0.1); }
+        label { font-size: 0.75rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; color: #7A6E65; margin-bottom: 0.3rem; display: block; }
+        .stat-card { background: white; border-radius: 1.5rem; padding: 1.2rem; text-align: center; border: 1px solid #F0EAE4; cursor: pointer; transition: 0.2s; }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.05); }
+        .stat-number { font-size: 2.2rem; font-weight: 700; color: #C48E7A; }
+        .admin-tab, .role-tab { padding: 0.6rem 1.4rem; cursor: pointer; font-weight: 500; border-radius: 2rem; transition: all 0.2s; color: #5A4E45; }
+        .admin-tab.active, .role-tab.active { background: #FFFFFF; color: #C48E7A; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+        .tab-pane { display: none; }
+        .tab-pane.active { display: block; }
+        .dashboard { display: none; }
+        .dashboard.active-dash { display: block; }
+        .table-minimal { width: 100%; border-collapse: collapse; }
+        .table-minimal th { text-align: left; padding: 0.8rem 0.5rem; font-weight: 600; color: #7A6E65; font-size: 0.75rem; text-transform: uppercase; border-bottom: 1px solid #EDE3DB; }
+        .table-minimal td { padding: 0.8rem 0.5rem; border-bottom: 1px solid #F4EFEA; font-size: 0.85rem; }
+        .activity-item { border-left: 3px solid #C48E7A; padding: 0.6rem 0 0.6rem 0.8rem; margin-bottom: 0.6rem; font-size: 0.8rem; background: #FEFCF9; border-radius: 1rem; }
+        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+        @media (max-width: 640px) { .grid-2 { grid-template-columns: 1fr; } }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: white; border-radius: 2rem; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; padding: 1.5rem; }
+        .sub-tab { padding: 0.4rem 1rem; cursor: pointer; border-bottom: 2px solid transparent; }
+        .sub-tab.active { border-bottom-color: #C48E7A; color: #C48E7A; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div class="max-w-7xl mx-auto px-5 py-5">
+        <div class="flex justify-between items-center">
+            <div class="text-2xl font-serif font-semibold text-[#2D2A26] tracking-tight">shortcaike beauty</div>
+            <div class="flex items-center space-x-4">
+                <span id="userDisplay" class="text-sm text-stone-500"></span>
+                <a href="/dashboard/logout" class="btn-outline text-sm">Logout</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-5 pb-10">
+        <!-- Role switcher (admin only) -->
+        <div id="roleSwitcher" class="flex justify-end mb-5 hidden">
+            <label class="text-sm mr-2 text-stone-500">Switch role:</label>
+            <select id="roleSelect" class="border border-soft rounded-full px-4 py-1 bg-white text-sm">
+                <option value="admin">Admin</option>
+                <option value="sales">Sales</option>
+                <option value="delivery">Delivery</option>
+                <option value="monitor">Monitor</option>
+                <option value="security">Security</option>
+                <option value="auditor">Auditor</option>
+                <option value="pickup_staff">Pickup Staff</option>
+                <option value="company_coordinator">Company Coordinator</option>
+            </select>
+        </div>
+
+        <!-- ========== ADMIN DASHBOARD ========== -->
+        <div id="adminDash" class="dashboard">
+            <div class="flex flex-wrap gap-2 mb-6" id="adminTabs">
+                <div class="admin-tab active" data-tab="allData">All Data</div>
+                <div class="admin-tab" data-tab="ordersTab">Orders</div>
+                <div class="admin-tab" data-tab="paymentsTab">Payments</div>
+                <div class="admin-tab" data-tab="usersTab">Users</div>
+                <div class="admin-tab" data-tab="deliveryTab">Delivery</div>
+                <div class="admin-tab" data-tab="auditTab">Audit Logs</div>
+            </div>
+
+            <!-- ALL DATA TAB -->
+            <div id="allData" class="tab-pane active">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div class="stat-card" data-tab="usersTab"><div class="stat-number" id="adminUserCount">0</div><div>Users</div></div>
+                    <div class="stat-card" data-tab="ordersTab"><div class="stat-number" id="adminOrderCount">0</div><div>Orders</div></div>
+                    <div class="stat-card" data-tab="paymentsTab"><div class="stat-number" id="adminRevenue">₦0</div><div>Revenue</div></div>
+                    <div class="stat-card"><div class="stat-number" id="adminHealth">100%</div><div>Health</div></div>
+                </div>
+                <div class="flex flex-wrap gap-3 mb-6">
+                    <div class="flex-1"><input type="text" id="globalSearch" placeholder="Search by order ID or customer..." class="input-modern"></div>
+                    <button id="globalSearchBtn" class="btn-soft px-6">Search</button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="card-modern p-5"><h3 class="text-sm font-semibold uppercase tracking-wide text-stone-500 mb-3">Recent activity</h3><div id="recentActivity" class="space-y-2 max-h-64 overflow-y-auto"></div></div>
+                    <div class="card-modern p-5"><h3 class="text-sm font-semibold uppercase tracking-wide text-stone-500 mb-3">Quick stats</h3><div class="space-y-2"><div class="flex justify-between"><span>Pending availability</span><span class="font-semibold" id="quickPendingAvail">0</span></div><div class="flex justify-between"><span>Awaiting payment</span><span class="font-semibold" id="quickAwaitingPay">0</span></div><div class="flex justify-between"><span>Out for delivery</span><span class="font-semibold" id="quickOutForDelivery">0</span></div></div></div>
+                </div>
+            </div>
+
+            <!-- ORDERS TAB -->
+            <div id="ordersTab" class="tab-pane">
+                <div class="card-modern p-5">
+                    <div class="flex flex-wrap justify-between items-center gap-3 mb-5">
+                        <div class="flex gap-2">
+                            <select id="orderStatusFilter" class="input-modern w-40">
+                                <option value="all">All status</option>
+                                <option value="pending_availability">Pending availability</option>
+                                <option value="awaiting_payment">Awaiting payment</option>
+                                <option value="ready_for_delivery">Ready for delivery</option>
+                                <option value="out_for_delivery">Out for delivery</option>
+                                <option value="delivered_waiting_confirm">Delivered waiting confirm</option>
+                                <option value="completed">Completed</option>
+                            </select>
+                            <input type="text" id="orderSearch" placeholder="Order ID / customer" class="input-modern w-64">
+                        </div>
+                        <button id="exportOrdersCsv" class="btn-outline text-sm">Export CSV</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="table-minimal">
+                            <thead><tr><th>Order ID</th><th>Customer</th><th>Total (₦)</th><th>Status</th><th>Payment</th><th>Date</th><th>Action</th></tr></thead>
+                            <tbody id="ordersTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAYMENTS TAB -->
+            <div id="paymentsTab" class="tab-pane">
+                <div class="card-modern p-5">
+                    <div class="flex gap-4 mb-4 border-b">
+                        <div class="sub-tab active" data-sub="confirmedPayments">Confirmed Payments</div>
+                        <div class="sub-tab" data-sub="paymentMethods">Payment Methods</div>
+                        <div class="sub-tab" data-sub="paymentHistory">Payment History</div>
+                    </div>
+                    <div id="confirmedPayments" class="sub-pane active">
+                        <div class="overflow-x-auto"><table class="table-minimal"><thead><tr><th>Order ID</th><th>Customer</th><th>Amount (₦)</th><th>Date</th><th>Receipt</th><th>Action</th></tr></thead><tbody id="confirmedPaymentsBody"></tbody></table></div>
+                    </div>
+                    <div id="paymentMethods" class="sub-pane hidden">
+                        <div class="overflow-x-auto"><table class="table-minimal"><thead><tr><th>Order ID</th><th>Customer</th><th>Method</th><th>Status</th><th>Date</th></tr></thead><tbody id="paymentMethodsBody"></tbody></table></div>
+                    </div>
+                    <div id="paymentHistory" class="sub-pane hidden">
+                        <div class="overflow-x-auto"><table class="table-minimal"><thead><tr><th>Order ID</th><th>Customer</th><th>Amount</th><th>Status</th><th>Timestamp</th></td></thead><tbody id="paymentHistoryBody"></tbody></table></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- USERS TAB -->
+            <div id="usersTab" class="tab-pane">
+                <div class="card-modern p-6"><h2 class="text-xl font-serif text-center mb-6">User management</h2>
+                    <form id="addUserForm" class="grid-2">
+                        <div><label>Username</label><input type="text" name="username" placeholder="e.g., lucia" class="input-modern" required></div>
+                        <div><label>Full name</label><input type="text" name="full_name" placeholder="Lucia M." class="input-modern" required></div>
+                        <div><label>Email</label><input type="email" name="email" placeholder="user@example.com" class="input-modern" required></div>
+                        <div><label>Role</label><select name="role" class="input-modern"><option value="sales">Sales</option><option value="delivery">Delivery</option><option value="monitor">Monitor</option><option value="security">Security</option><option value="auditor">Auditor</option><option value="pickup_staff">Pickup staff</option><option value="company_coordinator">Company coordinator</option></select></div>
+                        <div><label>Password</label><input type="password" name="password" placeholder="auto‑generated if empty" class="input-modern"></div>
+                        <div><label>Pickup station ID (optional)</label><input type="number" name="pickup_station_id" placeholder="e.g., 1" class="input-modern"></div>
+                        <div><label>Company name (optional)</label><input type="text" name="company_name" placeholder="e.g., ABC Ltd" class="input-modern"></div>
+                        <div class="col-span-2 flex justify-end mt-2"><button type="submit" class="btn-soft">Add user</button></div>
+                    </form>
+                </div>
+                <div class="card-modern p-5 mt-5"><table class="table-minimal"><thead><tr><th>Username</th><th>Full name</th><th>Email</th><th>Role</th><th>Active</th><th>Actions</th></tr></thead><tbody id="usersTableBody"></tbody></table></div>
+            </div>
+
+            <!-- DELIVERY TAB -->
+            <div id="deliveryTab" class="tab-pane">
+                <div class="card-modern p-5"><h3 class="text-sm font-semibold uppercase mb-3">Delivery fees</h3><div id="feesList" class="space-y-2 mb-6"></div>
+                <form id="addFeeForm" class="flex flex-wrap gap-3 items-end mb-8"><div class="flex-1"><label>Location</label><input type="text" name="location" placeholder="e.g., Lagos Island" class="input-modern" required></div><div class="w-32"><label>Fee (₦)</label><input type="number" step="0.01" name="fee" class="input-modern" required></div><button type="submit" class="btn-soft">Add fee</button></form>
+                <h3 class="text-sm font-semibold uppercase mb-3">Pickup stations</h3><div id="pickupStationsList" class="space-y-2 mb-4"></div>
+                <form id="addStationForm" class="flex flex-wrap gap-3 items-end"><div class="flex-1"><label>Station name</label><input type="text" name="station_name" placeholder="Ikeja station" class="input-modern" required></div><div class="flex-1"><label>Address</label><input type="text" name="address" placeholder="Address" class="input-modern" required></div><button type="submit" class="btn-soft">Add station</button></form></div>
+            </div>
+
+            <!-- AUDIT LOGS TAB -->
+            <div id="auditTab" class="tab-pane">
+                <div class="card-modern p-5"><div class="flex flex-wrap justify-between items-center gap-3 mb-5"><div class="flex flex-wrap gap-2"><select id="auditActionFilter" class="input-modern w-36"><option value="">All actions</option><option value="LOGIN">LOGIN</option><option value="ADD_USER">ADD_USER</option><option value="DEACTIVATE_USER">DEACTIVATE_USER</option><option value="DELETE_USER">DELETE_USER</option><option value="CONFIRM_PAYMENT">CONFIRM_PAYMENT</option><option value="SWITCH_ROLE">SWITCH_ROLE</option></select><select id="auditUserFilter" class="input-modern w-36"><option value="">All users</option></select><input type="date" id="auditDateFrom" class="input-modern w-36"><input type="date" id="auditDateTo" class="input-modern w-36"><button id="auditFilterBtn" class="btn-outline text-sm">Filter</button></div><button id="exportAuditBtn" class="btn-outline text-sm">Export CSV</button></div>
+                <div class="overflow-x-auto"><table class="table-minimal"><thead><tr><th>Timestamp</th><th>User</th><th>Role</th><th>Action</th><th>Target</th><th>IP</th></tr></thead><tbody id="auditTableBody"></tbody></table></div></div>
+            </div>
+        </div>
+
+        <!-- ========== SALES DASHBOARD ========== -->
+        <div id="salesDash" class="dashboard">
+            <div class="flex flex-wrap gap-2 mb-6" id="salesTabs">
+                <div class="admin-tab active" data-tab="salesProducts">Products</div>
+                <div class="admin-tab" data-tab="salesOrders">Orders</div>
+                <div class="admin-tab" data-tab="salesPayments">Payments</div>
+                <div class="admin-tab" data-tab="salesHistory">Full History</div>
+            </div>
+
+            <!-- Products (read-only) -->
+            <div id="salesProducts" class="tab-pane active">
+                <div class="card-modern p-5">
+                    <div class="overflow-x-auto">
+                        <table class="table-minimal">
+                            <thead><tr><th>Name</th><th>Price (₦)</th><th>Stock</th><th>Available</th></tr></thead>
+                            <tbody id="productsList"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Orders (with modal) -->
+            <div id="salesOrders" class="tab-pane">
+                <div class="card-modern p-5">
+                    <div class="flex gap-2 mb-4 border-b">
+                        <button class="sub-tab-active btn-outline" data-sub="pendingAvail">Pending availability</button>
+                        <button class="btn-outline" data-sub="awaitingPayment">Awaiting payment</button>
+                        <button class="btn-outline" data-sub="deliveredConfirm">Delivered confirm</button>
+                        <button class="btn-outline" data-sub="completed">Completed</button>
+                    </div>
+                    <div id="pendingAvail" class="sales-sub active"></div>
+                    <div id="awaitingPayment" class="sales-sub hidden"></div>
+                    <div id="deliveredConfirm" class="sales-sub hidden"></div>
+                    <div id="completed" class="sales-sub hidden"></div>
+                </div>
+            </div>
+
+            <!-- Payments (with method sub-tabs) -->
+            <div id="salesPayments" class="tab-pane">
+                <div class="card-modern p-5">
+                    <div class="flex gap-2 mb-4 border-b">
+                        <button class="sub-tab-active btn-outline" data-pay="bank_transfer">Bank Transfer</button>
+                        <button class="btn-outline" data-pay="cod">Cash on Delivery</button>
+                        <button class="btn-outline" data-pay="card">Card Payment</button>
+                    </div>
+                    <div id="bank_transfer" class="pay-sub active">
+                        <h3 class="text-sm font-semibold uppercase mb-2">Incoming (Pending)</h3>
+                        <div id="bank_pending"></div>
+                        <h3 class="text-sm font-semibold uppercase mt-4 mb-2">Confirmed History</h3>
+                        <div id="bank_confirmed"></div>
+                    </div>
+                    <div id="cod" class="pay-sub hidden">
+                        <div id="cod_pending"></div>
+                        <div id="cod_confirmed"></div>
+                    </div>
+                    <div id="card" class="pay-sub hidden">
+                        <div id="card_pending"></div>
+                        <div id="card_confirmed"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Full History (audit trail) -->
+            <div id="salesHistory" class="tab-pane">
+                <div class="card-modern p-5">
+                    <div class="flex flex-wrap gap-3 mb-4">
+                        <select id="historyAction" class="input-modern w-36">
+                            <option value="">All actions</option>
+                            <option value="CONFIRM_AVAILABILITY">Availability confirmed</option>
+                            <option value="CONFIRM_PAYMENT">Payment confirmed</option>
+                            <option value="START_DELIVERY">Delivery started</option>
+                            <option value="MARK_DELIVERED">Marked delivered</option>
+                            <option value="DOUBLE_CONFIRM_DELIVERY">Double confirmed</option>
+                        </select>
+                        <input type="text" id="historyOrderId" placeholder="Order ID" class="input-modern w-40">
+                        <input type="text" id="historyCustomer" placeholder="Customer" class="input-modern w-40">
+                        <input type="date" id="historyDateFrom" class="input-modern w-36">
+                        <input type="date" id="historyDateTo" class="input-modern w-36">
+                        <button id="historyFilterBtn" class="btn-outline text-sm">Filter</button>
+                        <button id="historyExportBtn" class="btn-outline text-sm">Export CSV</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="table-minimal">
+                            <thead><tr><th>Timestamp</th><th>Order ID</th><th>Action</th><th>User</th><th>Details</th></tr></thead>
+                            <tbody id="historyTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== DELIVERY, MONITOR, SECURITY, AUDITOR, PICKUP, COMPANY DASHBOARDS ========== -->
+        <!-- (Keep the same as before – they are unchanged and still work) -->
+        <div id="deliveryDash" class="dashboard">
+            <div class="flex flex-wrap gap-2 mb-6" id="deliveryTabs">
+                <div class="admin-tab active" data-tab="deliveryPending">Pending pickup</div>
+                <div class="admin-tab" data-tab="deliveryTransit">In transit</div>
+                <div class="admin-tab" data-tab="deliveryHistory">History</div>
+            </div>
+            <div id="deliveryPending" class="tab-pane active"><div class="card-modern p-5"><div id="pendingPickupList"></div></div></div>
+            <div id="deliveryTransit" class="tab-pane"><div class="card-modern p-5"><div id="inTransitList"></div><button id="updateGpsBtn" class="btn-soft mt-4">Update my GPS</button></div></div>
+            <div id="deliveryHistory" class="tab-pane"><div class="card-modern p-5"><div id="deliveryHistoryList"></div></div></div>
+        </div>
+
+        <div id="monitorDash" class="dashboard">
+            <div class="flex flex-wrap gap-2 mb-6" id="monitorTabs">
+                <div class="admin-tab active" data-tab="monitorLive">Live conversations</div>
+                <div class="admin-tab" data-tab="monitorFlagged">Flagged</div>
+            </div>
+            <div id="monitorLive" class="tab-pane active">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="card-modern p-5"><h3 class="text-lg font-serif font-semibold mb-3">Active chats</h3><div id="convList" class="space-y-2 max-h-96 overflow-y-auto"></div></div>
+                    <div class="card-modern p-5"><h3 class="text-lg font-serif font-semibold mb-3">Conversation detail</h3><div id="chatMessages" class="h-64 overflow-y-auto border rounded-2xl p-3 mb-3 bg-white"></div>
+                    <form id="replyForm"><input type="hidden" id="replyCustPhone"><textarea name="message" rows="2" placeholder="Type your reply..." class="input-modern w-full"></textarea><button type="submit" class="btn-soft mt-2 w-full">Send reply</button></form>
+                    <form id="flagForm" class="mt-2"><input type="hidden" id="flagCustPhone"><input type="text" name="reason" placeholder="Flag reason" class="input-modern w-full"><button type="submit" class="btn-danger mt-2 w-full">Flag conversation</button></form></div>
+                </div>
+            </div>
+            <div id="monitorFlagged" class="tab-pane"><div class="card-modern p-5"><div id="flaggedList" class="space-y-2"></div></div></div>
+        </div>
+
+        <div id="securityDash" class="dashboard">
+            <div class="flex flex-wrap gap-2 mb-6" id="securityTabs">
+                <div class="admin-tab active" data-tab="securityLogs">Audit logs</div>
+                <div class="admin-tab" data-tab="securityAlerts">Alerts</div>
+            </div>
+            <div id="securityLogs" class="tab-pane active"><div class="card-modern p-5"><div class="overflow-x-auto"><table class="table-minimal"><thead><tr><th>Time</th><th>User</th><th>Action</th><th>Details</th><th>IP</th></tr></thead><tbody id="auditTableBodySec"></tbody></table></div></div></div>
+            <div id="securityAlerts" class="tab-pane"><div class="card-modern p-5"><div id="alertsList"></div></div></div>
+        </div>
+
+        <div id="auditorDash" class="dashboard">
+            <div class="flex flex-wrap gap-2 mb-6" id="auditorTabs">
+                <div class="admin-tab active" data-tab="auditorOrders">Order audit</div>
+                <div class="admin-tab" data-tab="auditorTrail">Tamper trail</div>
+            </div>
+            <div id="auditorOrders" class="tab-pane active"><div class="card-modern p-5"><div class="overflow-x-auto"><table class="table-minimal"><thead><tr><th>Order ID</th><th>Customer</th><th>Total (₦)</th><th>Status</th><th>Action</th></tr></thead><tbody id="auditOrdersBody"></tbody></table></div><div class="flex gap-3 mt-4"><button id="exportOrdersAudit" class="btn-outline text-sm">Export orders (CSV)</button><button id="exportAuditLogBtn" class="btn-outline text-sm">Export audit log (CSV)</button></div></div></div>
+            <div id="auditorTrail" class="tab-pane"><div class="card-modern p-5"><div class="overflow-x-auto"><table class="table-minimal"><thead><tr><th>Time</th><th>Order ID</th><th>Action</th><th>Field</th><th>Old value</th><th>New value</th><th>Changed by</th></tr></thead><tbody id="trailBody"></tbody><td></div></div></div>
+        </div>
+
+        <div id="pickupDash" class="dashboard">
+            <div class="flex flex-wrap gap-2 mb-6" id="pickupTabs">
+                <div class="admin-tab active" data-tab="pickupReady">Ready for pickup</div>
+                <div class="admin-tab" data-tab="pickupPicked">Picked up</div>
+            </div>
+            <div id="pickupReady" class="tab-pane active"><div class="card-modern p-5"><div id="pickupReadyList"></div></div></div>
+            <div id="pickupPicked" class="tab-pane"><div class="card-modern p-5"><div id="pickupPickedList"></div></div></div>
+        </div>
+
+        <div id="companyDash" class="dashboard">
+            <div class="flex flex-wrap gap-2 mb-6" id="companyTabs">
+                <div class="admin-tab active" data-tab="companyPending">Pending receipt</div>
+                <div class="admin-tab" data-tab="companyReceived">Received</div>
+            </div>
+            <div id="companyPending" class="tab-pane active"><div class="card-modern p-5"><div id="companyPendingList"></div></div></div>
+            <div id="companyReceived" class="tab-pane"><div class="card-modern p-5"><div id="companyReceivedList"></div></div></div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="orderModal" class="modal">
+        <div class="modal-content">
+            <h2 class="text-xl font-serif font-semibold mb-4">Order Details</h2>
+            <div id="orderModalBody"></div>
+            <div class="flex justify-end mt-4" id="modalFooter">
+                <button id="closeModal" class="btn-outline">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="receiptModal" class="modal">
+        <div class="modal-content">
+            <h2 class="text-xl font-serif font-semibold mb-4">Payment Receipt</h2>
+            <div id="receiptModalBody"></div>
+            <div class="flex justify-end mt-4"><button id="closeReceiptModal" class="btn-outline">Close</button></div>
+        </div>
+    </div>
+
+    <script>
+        const currentUser = {{ user | tojson }};
+        const userRole = currentUser.role;
+        const isAdmin = (userRole === 'admin');
+        let currentImpersonatedRole = userRole;
+
+        function showDashboard(role) {
+            document.querySelectorAll('.dashboard').forEach(d => d.classList.remove('active-dash'));
+            const dashMap = {
+                admin: 'adminDash', sales: 'salesDash', delivery: 'deliveryDash', monitor: 'monitorDash',
+                security: 'securityDash', auditor: 'auditorDash', pickup_staff: 'pickupDash', company_coordinator: 'companyDash'
+            };
+            const dashId = dashMap[role];
+            if (dashId) document.getElementById(dashId).classList.add('active-dash');
+            document.getElementById('userDisplay').innerHTML = `${currentUser.full_name} (${role})`;
+            if (role === 'admin') loadAdminData();
+            else if (role === 'sales') loadSalesData();
+            else if (role === 'delivery') loadDeliveryData();
+            else if (role === 'monitor') loadMonitorData();
+            else if (role === 'security') loadSecurityData();
+            else if (role === 'auditor') loadAuditorData();
+            else if (role === 'pickup_staff') loadPickupData();
+            else if (role === 'company_coordinator') loadCompanyData();
+        }
+
+        if (isAdmin) {
+            document.getElementById('roleSwitcher').classList.remove('hidden');
+            document.getElementById('roleSelect').value = userRole;
+            document.getElementById('roleSelect').addEventListener('change', async (e) => {
+                const newRole = e.target.value;
+                const response = await fetch(`/dashboard/switch_role?role=${newRole}`);
+                if (response.ok) {
+                    currentImpersonatedRole = newRole;
+                    showDashboard(newRole);
+                } else {
+                    alert('Role switch failed');
+                }
+            });
+        }
+
+        // Generic tab switching
+        function initTabs(containerId, tabClass, panelClass) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            const tabs = container.querySelectorAll(`.${tabClass}`);
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const target = tab.dataset.tab;
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    const panels = container.querySelectorAll(`.${panelClass}`);
+                    panels.forEach(p => p.classList.remove('active'));
+                    const activePanel = document.getElementById(target);
+                    if (activePanel) activePanel.classList.add('active');
+                });
+            });
+        }
+        initTabs('adminDash', 'admin-tab', 'tab-pane');
+        initTabs('salesDash', 'admin-tab', 'tab-pane');
+        initTabs('deliveryDash', 'admin-tab', 'tab-pane');
+        initTabs('monitorDash', 'admin-tab', 'tab-pane');
+        initTabs('securityDash', 'admin-tab', 'tab-pane');
+        initTabs('auditorDash', 'admin-tab', 'tab-pane');
+        initTabs('pickupDash', 'admin-tab', 'tab-pane');
+        initTabs('companyDash', 'admin-tab', 'tab-pane');
+
+        // Clickable stat cards
+        document.querySelectorAll('.stat-card[data-tab]').forEach(card => {
+            card.addEventListener('click', () => {
+                const targetTab = card.dataset.tab;
+                const tabElement = document.querySelector(`.admin-tab[data-tab="${targetTab}"]`);
+                if (tabElement) tabElement.click();
+            });
+        });
+
+        // Payments sub-tabs
+        const paymentSubTabs = document.querySelectorAll('#paymentsTab .sub-tab');
+        const paymentSubPanes = document.querySelectorAll('#paymentsTab .sub-pane');
+        paymentSubTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const target = tab.dataset.sub;
+                paymentSubTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                paymentSubPanes.forEach(p => p.classList.add('hidden'));
+                document.getElementById(target).classList.remove('hidden');
+            });
+        });
+
+        // Audit filter
+        document.getElementById('auditFilterBtn')?.addEventListener('click', async () => {
+            const action = document.getElementById('auditActionFilter').value;
+            const user = document.getElementById('auditUserFilter').value;
+            const from = document.getElementById('auditDateFrom').value;
+            const to = document.getElementById('auditDateTo').value;
+            let url = '/api/security/audit_logs?';
+            if (action) url += `action=${action}&`;
+            if (user) url += `user=${user}&`;
+            if (from) url += `from=${from}&`;
+            if (to) url += `to=${to}&`;
+            const res = await fetch(url);
+            const logs = await res.json();
+            const auditTable = document.getElementById('auditTableBody');
+            auditTable.innerHTML = logs.map(l => `
+                <tr>
+                    <td>${l.timestamp}</td>
+                    <td>${l.user_username}</td>
+                    <td>${l.user_role}${l.impersonated_role ? ` (as ${l.impersonated_role})` : ''}</td>
+                    <td>${l.action}</td>
+                    <td>${l.details || ''}</td>
+                    <td>${l.ip_address || ''}</td>
+                </tr>
+            `).join('');
+        });
+
+        // Global search
+        document.getElementById('globalSearchBtn')?.addEventListener('click', () => {
+            const query = document.getElementById('globalSearch').value.trim();
+            if (!query) return;
+            fetch(`/api/admin/search?q=${encodeURIComponent(query)}`)
+                .then(res => res.json())
+                .then(orders => {
+                    const adminOrdersBody = document.getElementById('ordersTableBody');
+                    adminOrdersBody.innerHTML = orders.map(o => `
+                        <tr>
+                            <td>${o.order_id}</td>
+                            <td>${o.customer_name}</td>
+                            <td>₦${o.total}</td>
+                            <td>${o.status}</td>
+                            <td>${o.payment_status}</td>
+                            <td>${o.created_at.slice(0,10)}</td>
+                            <td><button class="order-details-btn btn-outline text-xs" data-order="${o.order_id}">Details</button></td>
+                        </tr>
+                    `).join('');
+                    document.querySelectorAll('.order-details-btn').forEach(btn => btn.addEventListener('click', () => showOrderDetails(btn.dataset.order)));
+                });
+        });
+
+        // Order status filter
+        const orderStatusFilter = document.getElementById('orderStatusFilter');
+        if (orderStatusFilter) {
+            orderStatusFilter.addEventListener('change', () => {
+                const status = orderStatusFilter.value;
+                fetch(`/api/sales/orders?status=${status}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        let orders = [];
+                        if (status === 'all') orders = [...data.pending_avail, ...data.awaiting_payment, ...data.delivered_confirm];
+                        else if (status === 'pending_availability') orders = data.pending_avail;
+                        else if (status === 'awaiting_payment') orders = data.awaiting_payment;
+                        else if (status === 'delivered_waiting_confirm') orders = data.delivered_confirm;
+                        else if (status === 'completed') orders = data.completed || [];
+                        const adminOrdersBody = document.getElementById('ordersTableBody');
+                        adminOrdersBody.innerHTML = orders.map(o => `<tr><td>${o.order_id}</td><td>${o.customer_name}</td><td>₦${o.total}</td><td>${o.status}</td><td>${o.payment_status}</td><td>${o.created_at.slice(0,10)}</td><td><button class="order-details-btn btn-outline text-xs" data-order="${o.order_id}">Details</button></td>`).join('');
+                        document.querySelectorAll('.order-details-btn').forEach(btn => btn.addEventListener('click', () => showOrderDetails(btn.dataset.order)));
+                    });
+            });
+        }
+
+        // Modal functions
+        function showOrderDetails(orderId) {
+            fetch(`/api/orders/${orderId}/details`)
+                .then(res => res.json())
+                .then(data => {
+                    let itemsHtml = '';
+                    try {
+                        const items = JSON.parse(data.items);
+                        itemsHtml = items.map(item => `<li>${item.quantity} x ${item.product} – ₦${item.price * item.quantity}</li>`).join('');
+                    } catch(e) { itemsHtml = data.items; }
+                    const receiptHtml = data.receipt_url ? `<p><strong>Receipt:</strong> <a href="${data.receipt_url}" target="_blank">View</a></p>` : '<p>No receipt uploaded.</p>';
+                    const addressHtml = data.address ? `<p><strong>Delivery address:</strong> ${data.address}</p>` : '<p><strong>Delivery type:</strong> Pickup / Company</p>';
+                    const modalContent = `
+                        <p><strong>Order ID:</strong> ${data.order_id}</p>
+                        <p><strong>Customer:</strong> ${data.customer_name || 'N/A'}</p>
+                        <p><strong>Items:</strong></p>
+                        <ul>${itemsHtml}</ul>
+                        <p><strong>Total:</strong> ₦${data.total}</p>
+                        ${addressHtml}
+                        <p><strong>Payment method:</strong> ${data.payment_method || 'Not selected'}</p>
+                        ${receiptHtml}
+                        <p><strong>Status:</strong> ${data.status}</p>
+                    `;
+                    document.getElementById('orderModalBody').innerHTML = modalContent;
+                    document.getElementById('orderModal').style.display = 'flex';
+                });
+        }
+        document.getElementById('closeModal')?.addEventListener('click', () => {
+            document.getElementById('orderModal').style.display = 'none';
+        });
+        window.addEventListener('click', (e) => {
+            if (e.target === document.getElementById('orderModal')) {
+                document.getElementById('orderModal').style.display = 'none';
+            }
+        });
+
+        function showReceipt(receiptUrl) {
+            document.getElementById('receiptModalBody').innerHTML = `<img src="${receiptUrl}" style="max-width:100%;">`;
+            document.getElementById('receiptModal').style.display = 'flex';
+        }
+        document.getElementById('closeReceiptModal')?.addEventListener('click', () => {
+            document.getElementById('receiptModal').style.display = 'none';
+        });
+
+        // ---------- DATA LOADERS ----------
+        async function loadAdminData() {
+            // Users
+            const usersRes = await fetch('/api/admin/users');
+            const usersData = await usersRes.json();
+            document.getElementById('adminUserCount').innerText = usersData.users.length;
+            const tbody = document.getElementById('usersTableBody');
+            tbody.innerHTML = usersData.users.map(u => `
+                <tr>
+                    <td>${u.username}</td>
+                    <td>${u.full_name||''}</td>
+                    <td>${u.email||''}</td>
+                    <td>${u.role}</td>
+                    <td>${u.active?'Active':'Inactive'}</td>
+                    <td>
+                        <button class="deactivate-user btn-outline text-xs" data-id="${u.id}">Deact</button>
+                        <button class="delete-user btn-danger text-xs" data-id="${u.id}">Del</button>
+                    </td>
+                </tr>
+            `).join('');
+            document.querySelectorAll('.deactivate-user').forEach(btn => btn.addEventListener('click', async () => {
+                await fetch('/api/admin/deactivate_user', { method: 'POST', body: new URLSearchParams({user_id: btn.dataset.id}) });
+                loadAdminData();
+            }));
+            document.querySelectorAll('.delete-user').forEach(btn => btn.addEventListener('click', async () => {
+                await fetch('/api/admin/delete_user', { method: 'POST', body: new URLSearchParams({user_id: btn.dataset.id}) });
+                loadAdminData();
+            }));
+
+            // Orders & stats
+            const ordersRes = await fetch('/api/sales/orders');
+            const orders = await ordersRes.json();
+            const allOrders = [...orders.pending_avail, ...orders.awaiting_payment, ...orders.delivered_confirm];
+            document.getElementById('adminOrderCount').innerText = allOrders.length;
+            const revenue = allOrders.filter(o => o.payment_status === 'paid').reduce((s,o) => s + (o.total||0), 0);
+            document.getElementById('adminRevenue').innerText = `₦${revenue}`;
+            document.getElementById('adminHealth').innerText = '100%';
+            document.getElementById('quickPendingAvail').innerText = orders.pending_avail.length;
+            document.getElementById('quickAwaitingPay').innerText = orders.awaiting_payment.length;
+            document.getElementById('quickOutForDelivery').innerText = allOrders.filter(o => o.status === 'out_for_delivery').length;
+            const ordersTableBody = document.getElementById('ordersTableBody');
+            ordersTableBody.innerHTML = allOrders.map(o => `
+                <tr>
+                    <td>${o.order_id}</td>
+                    <td>${o.customer_name}</td>
+                    <td>₦${o.total}</td>
+                    <td>${o.status}</td>
+                    <td>${o.payment_status}</td>
+                    <td>${o.created_at.slice(0,10)}</td>
+                    <td><button class="order-details-btn btn-outline text-xs" data-order="${o.order_id}">Details</button></td>
+                </tr>
+            `).join('');
+            document.querySelectorAll('.order-details-btn').forEach(btn => btn.addEventListener('click', () => showOrderDetails(btn.dataset.order)));
+
+            // Payments
+            const confirmed = allOrders.filter(o => o.payment_status === 'paid');
+            document.getElementById('confirmedPaymentsBody').innerHTML = confirmed.map(o => `
+                <tr>
+                    <td>${o.order_id}</td>
+                    <td>${o.customer_name}</td>
+                    <td>₦${o.total}</td>
+                    <td>${o.created_at.slice(0,10)}</td>
+                    <td>${o.receipt_url ? `<button class="view-receipt btn-outline text-xs" data-url="${o.receipt_url}">View</button>` : '-'}</td>
+                    <td><button class="confirm-pay btn-soft text-xs" data-order="${o.order_id}">Confirm</button></td>
+                </tr>
+            `).join('');
+            document.querySelectorAll('.view-receipt').forEach(btn => btn.addEventListener('click', () => showReceipt(btn.dataset.url)));
+            document.querySelectorAll('.confirm-pay').forEach(btn => btn.addEventListener('click', async () => {
+                await fetch('/api/sales/confirm_payment', { method: 'POST', body: new URLSearchParams({order_id: btn.dataset.order}) });
+                loadAdminData();
+            }));
+
+            // Payment methods
+            const withMethod = allOrders.filter(o => o.payment_method);
+            document.getElementById('paymentMethodsBody').innerHTML = withMethod.map(o => `
+                <tr>
+                    <td>${o.order_id}</td>
+                    <td>${o.customer_name}</td>
+                    <td>${o.payment_method}</td>
+                    <td>${o.payment_status}</td>
+                    <td>${o.created_at.slice(0,10)}</td>
+                </tr>
+            `).join('');
+            // Payment history from audit logs
+            const auditRes = await fetch('/api/security/audit_logs');
+            const logs = await auditRes.json();
+            const paymentLogs = logs.filter(l => l.action === 'CONFIRM_PAYMENT');
+            document.getElementById('paymentHistoryBody').innerHTML = paymentLogs.map(l => `
+                <tr>
+                    <td>${l.details?.match(/Order\s+(\S+)/)?.[1] || ''}</td>
+                    <td>${l.user_username}</td>
+                    <td>-</td>
+                    <td>${l.timestamp}</td>
+                </tr>
+            `).join('');
+
+            // Recent activity
+            const recent = logs.slice(0,5);
+            document.getElementById('recentActivity').innerHTML = recent.length ? recent.map(l => `<div class="activity-item">${l.timestamp.slice(0,16)} – ${l.user_username} did ${l.action}</div>`).join('') : '<div class="activity-item">No recent activity</div>';
+
+            // Delivery fees
+            const feesRes = await fetch('/api/admin/fees');
+            const fees = await feesRes.json();
+            const feesDiv = document.getElementById('feesList');
+            if (fees.length) {
+                feesDiv.innerHTML = fees.map(f => `<div class="flex justify-between items-center border-b pb-2"><span>${f.location} – ₦${f.fee}</span><div><button class="edit-fee btn-outline text-xs" data-id="${f.id}" data-loc="${f.location}" data-fee="${f.fee}">Edit</button> <button class="remove-fee text-stone-400 text-sm" data-id="${f.id}">Remove</button></div></div>`).join('');
+                document.querySelectorAll('.remove-fee').forEach(btn => btn.addEventListener('click', async () => {
+                    await fetch('/api/admin/remove_fee', { method: 'POST', body: new URLSearchParams({fee_id: btn.dataset.id}) });
+                    loadAdminData();
+                }));
+                document.querySelectorAll('.edit-fee').forEach(btn => btn.addEventListener('click', () => {
+                    const newFee = prompt("Enter new fee (₦):", btn.dataset.fee);
+                    if (newFee && !isNaN(newFee)) {
+                        fetch('/api/admin/update_fee', { method: 'POST', body: new URLSearchParams({fee_id: btn.dataset.id, amount: newFee}) })
+                            .then(() => loadAdminData());
+                    }
+                }));
+            } else feesDiv.innerHTML = '<div class="text-stone-400">No fees added yet.</div>';
+
+            // Pickup stations
+            const stationsRes = await fetch('/api/admin/pickup_stations');
+            const stations = await stationsRes.json();
+            const stationsDiv = document.getElementById('pickupStationsList');
+            if (stations.length) {
+                stationsDiv.innerHTML = stations.map(s => `<div class="flex justify-between items-center border-b pb-2"><span><strong>${s.name}</strong><br>${s.address || ''}</span><div><button class="edit-station btn-outline text-xs" data-id="${s.id}" data-name="${s.name}" data-addr="${s.address || ''}">Edit</button> <button class="remove-station text-stone-400 text-sm" data-id="${s.id}">Remove</button></div></div>`).join('');
+                document.querySelectorAll('.remove-station').forEach(btn => btn.addEventListener('click', async () => {
+                    await fetch('/api/admin/delete_station', { method: 'POST', body: new URLSearchParams({station_id: btn.dataset.id}) });
+                    loadAdminData();
+                }));
+                document.querySelectorAll('.edit-station').forEach(btn => btn.addEventListener('click', () => {
+                    const newName = prompt("New station name:", btn.dataset.name);
+                    const newAddr = prompt("New address:", btn.dataset.addr);
+                    if (newName) {
+                        fetch('/api/admin/update_station', { method: 'POST', body: new URLSearchParams({station_id: btn.dataset.id, name: newName, address: newAddr}) })
+                            .then(() => loadAdminData());
+                    }
+                }));
+            } else stationsDiv.innerHTML = '<div class="text-stone-400">No stations added.</div>';
+
+            // Audit logs
+            const auditLogsRes = await fetch('/api/security/audit_logs');
+            const auditLogs = await auditLogsRes.json();
+            const auditTable = document.getElementById('auditTableBody');
+            auditTable.innerHTML = auditLogs.slice(0,200).map(l => `
+                <tr>
+                    <td>${l.timestamp}</td>
+                    <td>${l.user_username}</td>
+                    <td>${l.user_role}${l.impersonated_role ? ` (as ${l.impersonated_role})` : ''}</td>
+                    <td>${l.action}</td>
+                    <td>${l.details || ''}</td>
+                    <td>${l.ip_address || ''}</td>
+                </tr>
+            `).join('');
+        }
+
+        // Sales dashboard loader (fixed modal)
+        async function loadSalesData() {
+            // Products (read-only)
+            const prodRes = await fetch('/api/sales/products');
+            const products = await prodRes.json();
+            const prodTable = document.getElementById('productsList');
+            prodTable.innerHTML = products.map(p => `
+                <tr><td class="p-2">${p.name}</td><td class="p-2">₦${p.price}</td><td class="p-2">${p.stock}</td><td class="p-2">${p.available ? 'Yes' : 'No'}</td></tr>
+            `).join('');
+
+            // Orders
+            const ordersRes = await fetch('/api/sales/orders');
+            const orders = await ordersRes.json();
+
+            function renderOrderList(containerId, list, action) {
+                const container = document.getElementById(containerId);
+                if (!list.length) { container.innerHTML = '<p class="text-gray-500">No orders.</p>'; return; }
+                container.innerHTML = list.map(o => `
+                    <div class="border-b py-3 flex justify-between items-center">
+                        <div><strong>${o.order_id}</strong> – ${o.customer_name} – ₦${o.total}</div>
+                        <button class="order-action btn-soft text-sm px-3 py-1" data-order="${o.order_id}" data-action="${action}">${action === 'confirm_availability' ? 'Confirm availability' : (action === 'confirm_payment' ? 'Confirm payment' : 'Double confirm')}</button>
+                    </div>
+                `).join('');
+                // Attach click event that shows order details modal and then performs action
+                document.querySelectorAll(`#${containerId} .order-action`).forEach(btn => {
+                    btn.addEventListener('click', async () => {
+                        const orderId = btn.dataset.order;
+                        const act = btn.dataset.action;
+                        // Show order details in the existing modal (reuse showOrderDetails)
+                        await showOrderDetails(orderId);
+                        // After modal is shown, override the default close button behavior to ask for confirmation
+                        // Instead, we add a new confirm button to the modal footer
+                        const modalFooter = document.getElementById('modalFooter');
+                        const existingConfirm = document.getElementById('confirmActionBtn');
+                        if (existingConfirm) existingConfirm.remove();
+                        const confirmBtn = document.createElement('button');
+                        confirmBtn.id = 'confirmActionBtn';
+                        confirmBtn.innerText = act === 'confirm_availability' ? 'Confirm Availability' : (act === 'confirm_payment' ? 'Confirm Payment' : 'Double Confirm');
+                        confirmBtn.className = 'btn-soft ml-2';
+                        confirmBtn.onclick = async () => {
+                            await fetch(`/api/sales/${act}`, { method: 'POST', body: new URLSearchParams({order_id: orderId}) });
+                            document.getElementById('orderModal').style.display = 'none';
+                            loadSalesData();
+                        };
+                        modalFooter.appendChild(confirmBtn);
+                        // Also keep the original close button
+                    });
+                });
+            }
+            renderOrderList('pendingAvail', orders.pending_avail, 'confirm_availability');
+            renderOrderList('awaitingPayment', orders.awaiting_payment, 'confirm_payment');
+            renderOrderList('deliveredConfirm', orders.delivered_confirm, 'double_confirm');
+            renderOrderList('completed', orders.completed || [], '');
+
+            // Payments by method
+            const allOrders = [...orders.pending_avail, ...orders.awaiting_payment, ...orders.delivered_confirm, ...(orders.completed || [])];
+            const methods = ['bank_transfer', 'cod', 'card'];
+            for (let method of methods) {
+                const pending = allOrders.filter(o => o.payment_method === method && o.payment_status !== 'paid');
+                const confirmed = allOrders.filter(o => o.payment_method === method && o.payment_status === 'paid');
+                const pendingDiv = document.getElementById(`${method}_pending`);
+                const confirmedDiv = document.getElementById(`${method}_confirmed`);
+                if (pendingDiv) {
+                    pendingDiv.innerHTML = pending.map(o => `<div class="border-b py-2 flex justify-between"><div><strong>${o.order_id}</strong> – ${o.customer_name} – ₦${o.total}</div><button class="confirm-pay-method btn-soft text-xs" data-order="${o.order_id}">Confirm Payment</button></div>`).join('');
+                    document.querySelectorAll('.confirm-pay-method').forEach(btn => btn.addEventListener('click', async () => {
+                        await fetch('/api/sales/confirm_payment', { method: 'POST', body: new URLSearchParams({order_id: btn.dataset.order}) });
+                        loadSalesData();
+                    }));
+                }
+                if (confirmedDiv) {
+                    confirmedDiv.innerHTML = confirmed.map(o => `<div class="border-b py-2 flex justify-between"><div><strong>${o.order_id}</strong> – ${o.customer_name} – ₦${o.total}</div><button class="view-receipt-method btn-outline text-xs" data-url="${o.receipt_url || ''}">View Receipt</button></div>`).join('');
+                    document.querySelectorAll('.view-receipt-method').forEach(btn => btn.addEventListener('click', () => {
+                        if (btn.dataset.url) showReceipt(btn.dataset.url);
+                        else alert('No receipt uploaded');
+                    }));
+                }
+            }
+
+            // Full History
+            await loadSalesHistory();
+        }
+
+        async function loadSalesHistory() {
+            const action = document.getElementById('historyAction').value;
+            const orderId = document.getElementById('historyOrderId').value;
+            const customer = document.getElementById('historyCustomer').value;
+            const fromDate = document.getElementById('historyDateFrom').value;
+            const toDate = document.getElementById('historyDateTo').value;
+            let url = '/api/security/audit_logs?';
+            if (action) url += `action=${action}&`;
+            if (orderId) url += `details=${encodeURIComponent(orderId)}&`;
+            if (customer) url += `details=${encodeURIComponent(customer)}&`;
+            if (fromDate) url += `from=${fromDate}&`;
+            if (toDate) url += `to=${toDate}&`;
+            const res = await fetch(url);
+            const logs = await res.json();
+            const historyTable = document.getElementById('historyTableBody');
+            historyTable.innerHTML = logs.map(l => `
+                <tr><td class="p-2">${l.timestamp}</td><td class="p-2">${l.details?.match(/Order\s+(\S+)/)?.[1] || ''}</td><td class="p-2">${l.action}</td><td class="p-2">${l.user_username}</td><td class="p-2">${l.details || ''}</td></tr>
+            `).join('');
+        }
+
+        // Payment method sub-tabs
+        const paySubTabs = document.querySelectorAll('#salesPayments .btn-outline');
+        const paySubPanes = document.querySelectorAll('#salesPayments .pay-sub');
+        paySubTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const target = tab.dataset.pay;
+                paySubTabs.forEach(t => t.classList.remove('sub-tab-active'));
+                tab.classList.add('sub-tab-active');
+                paySubPanes.forEach(p => p.classList.add('hidden'));
+                document.getElementById(target).classList.remove('hidden');
+            });
+        });
+
+        // History filter button
+        document.getElementById('historyFilterBtn')?.addEventListener('click', () => loadSalesHistory());
+        document.getElementById('historyExportBtn')?.addEventListener('click', () => window.location.href = '/api/security/export');
+
+        // Delivery, Monitor, Security, Auditor, Pickup, Company loaders (unchanged – keep from previous version)
+        async function loadDeliveryData() {
+            const res = await fetch('/api/delivery/orders');
+            const data = await res.json();
+            const pendingDiv = document.getElementById('pendingPickupList');
+            pendingDiv.innerHTML = data.pending.map(o => `<div class="border-b py-2 flex justify-between"><div><strong>${o.order_id}</strong><br>${o.customer_name}</div><button class="start-delivery btn-soft text-sm px-3 py-1" data-order="${o.order_id}">Start delivery</button></div>`).join('');
+            const transitDiv = document.getElementById('inTransitList');
+            transitDiv.innerHTML = data.transit.map(o => `<div class="border-b py-2"><div><strong>${o.order_id}</strong> – ${o.customer_name}</div><div class="flex gap-2 mt-1"><button class="update-gps btn-outline text-sm" data-order="${o.order_id}">Update GPS</button><button class="mark-delivered btn-danger text-sm" data-order="${o.order_id}">Mark delivered</button></div></div>`).join('');
+            const historyRes = await fetch('/api/delivery/history');
+            const history = await historyRes.json();
+            const historyDiv = document.getElementById('deliveryHistoryList');
+            historyDiv.innerHTML = history.length ? history.map(o => `<div class="border-b py-2">${o.order_id} – ${o.customer_name} – delivered at ${o.delivered_at}</div>`).join('') : '<p class="text-gray-500">No delivery history yet.</p>';
+            document.querySelectorAll('.start-delivery').forEach(btn => btn.addEventListener('click', async () => {
+                await fetch('/api/delivery/start', { method: 'POST', body: new URLSearchParams({order_id: btn.dataset.order}) });
+                loadDeliveryData();
+            }));
+            document.querySelectorAll('.mark-delivered').forEach(btn => btn.addEventListener('click', async () => {
+                await fetch('/api/delivery/mark_delivered', { method: 'POST', body: new URLSearchParams({order_id: btn.dataset.order}) });
+                loadDeliveryData();
+            }));
+            document.querySelectorAll('.update-gps').forEach(btn => btn.addEventListener('click', () => {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(async pos => {
+                        await fetch('/api/delivery/update_gps', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({lat: pos.coords.latitude, lng: pos.coords.longitude}) });
+                        alert('GPS updated');
+                    });
+                } else alert('Geolocation not supported');
+            }));
+        }
+        document.getElementById('updateGpsBtn')?.addEventListener('click', () => {
+            if (navigator.geolocation) navigator.geolocation.getCurrentPosition(async pos => {
+                await fetch('/api/delivery/update_gps', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({lat: pos.coords.latitude, lng: pos.coords.longitude}) });
+                alert('Your location updated');
+            });
+        });
+
+        async function loadMonitorData() {
+            const convsRes = await fetch('/api/monitor/conversations');
+            const convs = await convsRes.json();
+            const listDiv = document.getElementById('convList');
+            listDiv.innerHTML = convs.length ? convs.map(c => `<div class="border-b pb-2 mb-2 flex justify-between items-center"><div><strong>${c.customer_name}</strong><br><span class="text-sm">${c.last_msg?.substring(0,50) || ''}</span></div><button class="view-chat btn-outline text-xs px-2 py-1" data-phone="${c.customer_phone}">View</button></div>`).join('') : '<p class="text-gray-500">No conversations yet.</p>';
+            document.querySelectorAll('.view-chat').forEach(btn => btn.addEventListener('click', async () => {
+                const custPhone = btn.dataset.phone;
+                const msgsRes = await fetch(`/api/monitor/conversation/${custPhone}`);
+                const msgs = await msgsRes.json();
+                const chatDiv = document.getElementById('chatMessages');
+                chatDiv.innerHTML = msgs.map(m => `<div><b>${m.direction}:</b> ${m.body}</div>`).join('');
+                document.getElementById('replyCustPhone').value = custPhone;
+                document.getElementById('flagCustPhone').value = custPhone;
+            }));
+            const flaggedRes = await fetch('/api/monitor/flagged');
+            const flagged = await flaggedRes.json();
+            const flaggedDiv = document.getElementById('flaggedList');
+            flaggedDiv.innerHTML = flagged.length ? flagged.map(f => `<div class="border-b pb-2 flex justify-between items-center"><div><strong>${f.customer_name}</strong><br>Reason: ${f.reason}</div><button class="resolve-flag btn-success text-xs" data-id="${f.id}">Resolve</button></div>`).join('') : '<p class="text-gray-500">No flagged conversations.</p>';
+            document.querySelectorAll('.resolve-flag').forEach(btn => btn.addEventListener('click', async () => {
+                await fetch('/api/monitor/resolve', { method: 'POST', body: new URLSearchParams({flag_id: btn.dataset.id}) });
+                loadMonitorData();
+            }));
+        }
+        document.getElementById('replyForm')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const custPhone = document.getElementById('replyCustPhone').value;
+            const message = e.target.message.value;
+            await fetch('/api/monitor/send_reply', { method: 'POST', body: new URLSearchParams({customer_phone: custPhone, message: message}) });
+            alert('Reply sent!');
+            loadMonitorData();
+            e.target.reset();
+        });
+        document.getElementById('flagForm')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const custPhone = document.getElementById('flagCustPhone').value;
+            const reason = e.target.reason.value;
+            await fetch('/api/monitor/flag', { method: 'POST', body: new URLSearchParams({customer_phone: custPhone, reason: reason}) });
+            alert('Conversation flagged');
+            loadMonitorData();
+            e.target.reset();
+        });
+
+        async function loadSecurityData() {
+            const logsRes = await fetch('/api/security/audit_logs');
+            const logs = await logsRes.json();
+            const tableBody = document.getElementById('auditTableBodySec');
+            tableBody.innerHTML = logs.slice(0,100).map(l => `<tr><td class="p-2">${l.timestamp}</td><td class="p-2">${l.user_username}</td><td class="p-2">${l.action}</td><td class="p-2">${l.details||''}</td><td class="p-2">${l.ip_address||''}</td>`).join('');
+            const alerts = logs.filter(l => l.action === 'FAILED_LOGIN' || l.action === 'DEACTIVATE_USER');
+            const alertsDiv = document.getElementById('alertsList');
+            alertsDiv.innerHTML = alerts.length ? alerts.map(a => `<div class="border-b py-1">${a.timestamp} – ${a.action} – ${a.details}</div>`).join('') : '<p class="text-gray-500">No alerts</p>';
+        }
+        document.getElementById('exportAuditBtn')?.addEventListener('click', () => window.location.href = '/api/security/export');
+
+        async function loadAuditorData() {
+            const ordersRes = await fetch('/api/auditor/orders');
+            const orders = await ordersRes.json();
+            const ordersBody = document.getElementById('auditOrdersBody');
+            ordersBody.innerHTML = orders.map(o => `<td><td class="p-2">${o.order_id}</td><td class="p-2">${o.customer_name}</td><td class="p-2">₦${o.total}</td><td class="p-2">${o.status}</td><td class="p-2"><button class="verify-order btn-success text-xs" data-order="${o.order_id}">Verify</button></td>`).join('');
+            document.querySelectorAll('.verify-order').forEach(btn => btn.addEventListener('click', async () => {
+                await fetch('/api/auditor/verify', { method: 'POST', body: new URLSearchParams({order_id: btn.dataset.order}) });
+                loadAuditorData();
+            }));
+            const trailRes = await fetch('/api/auditor/audit_trail');
+            const trail = await trailRes.json();
+            const trailBody = document.getElementById('trailBody');
+            trailBody.innerHTML = trail.map(t => `<tr><td class="p-2">${t.timestamp}</td><td class="p-2">${t.details?.match(/Order \d+/)?.[0] || ''}</td><td class="p-2">${t.action}</td><td class="p-2">${t.field || '-'}</td><td class="p-2">${t.old_value || '-'}</td><td class="p-2">${t.new_value || '-'}</td><td class="p-2">${t.user_username}</td>`).join('');
+        }
+        document.getElementById('exportOrdersAudit')?.addEventListener('click', () => window.location.href = '/api/auditor/export_orders');
+        document.getElementById('exportAuditLogBtn')?.addEventListener('click', () => window.location.href = '/api/security/export');
+
+        async function loadPickupData() {
+            const readyRes = await fetch('/api/pickup/orders');
+            const readyOrders = await readyRes.json();
+            const readyDiv = document.getElementById('pickupReadyList');
+            if (!readyOrders.length) readyDiv.innerHTML = '<p class="text-gray-500">No orders ready for pickup.</p>';
+            else readyDiv.innerHTML = readyOrders.map(o => `<div class="border-b py-2 flex justify-between"><div><strong>${o.order_id}</strong> – ${o.customer_name}<br>${o.items}</div><button class="pickup-picked btn-success text-sm" data-order="${o.order_id}">Mark picked up</button></div>`).join('');
+            document.querySelectorAll('.pickup-picked').forEach(btn => btn.addEventListener('click', async () => {
+                await fetch('/api/pickup/picked', { method: 'POST', body: new URLSearchParams({order_id: btn.dataset.order}) });
+                loadPickupData();
+            }));
+            const completedRes = await fetch('/api/pickup/completed');
+            const completedOrders = await completedRes.json();
+            const completedDiv = document.getElementById('pickupPickedList');
+            if (!completedOrders.length) completedDiv.innerHTML = '<p class="text-gray-500">No picked up orders.</p>';
+            else completedDiv.innerHTML = completedOrders.map(o => `<div class="border-b py-2">${o.order_id} – ${o.customer_name} – picked up</div>`).join('');
+        }
+
+        async function loadCompanyData() {
+            const pendingRes = await fetch('/api/company/orders');
+            const pendingOrders = await pendingRes.json();
+            const pendingDiv = document.getElementById('companyPendingList');
+            if (!pendingOrders.length) pendingDiv.innerHTML = '<p class="text-gray-500">No pending company orders.</p>';
+            else pendingDiv.innerHTML = pendingOrders.map(o => `<div class="border-b py-2 flex justify-between"><div><strong>${o.order_id}</strong> – ${o.customer_name}<br>Items: ${o.items}<br>Total: ₦${o.total}</div><button class="company-receive btn-soft text-sm" data-order="${o.order_id}">Confirm receipt</button></div>`).join('');
+            document.querySelectorAll('.company-receive').forEach(btn => btn.addEventListener('click', async () => {
+                await fetch('/api/company/receive', { method: 'POST', body: new URLSearchParams({order_id: btn.dataset.order}) });
+                loadCompanyData();
+            }));
+            const receivedRes = await fetch('/api/company/received');
+            const receivedOrders = await receivedRes.json();
+            const receivedDiv = document.getElementById('companyReceivedList');
+            if (!receivedOrders.length) receivedDiv.innerHTML = '<p class="text-gray-500">No received company orders.</p>';
+            else receivedDiv.innerHTML = receivedOrders.map(o => `<div class="border-b py-2">${o.order_id} – ${o.customer_name} – confirmed</div>`).join('');
+        }
+
+        // Add user form
+        document.getElementById('addUserForm')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const response = await fetch('/api/admin/add_user', { method: 'POST', body: formData });
+            const result = await response.json();
+            if (result.status === 'ok') {
+                alert(`User added successfully.\n\nUsername: ${formData.get('username')}\nPassword: ${result.password}\n\n${result.email_sent ? 'An email has also been sent.' : 'Email could not be sent. Please provide the password manually.'}`);
+                loadAdminData();
+                e.target.reset();
+            } else {
+                alert('Error adding user: ' + (result.error || 'Unknown error'));
+            }
+        });
+
+        document.getElementById('addFeeForm')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            await fetch('/api/admin/add_fee', { method: 'POST', body: formData });
+            loadAdminData();
+            e.target.reset();
+        });
+        document.getElementById('addStationForm')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            await fetch('/api/admin/add_station', { method: 'POST', body: formData });
+            loadAdminData();
+            e.target.reset();
+        });
+
+        // Export CSV
+        document.getElementById('exportOrdersCsv')?.addEventListener('click', () => window.location.href = '/api/auditor/export_orders');
+        document.getElementById('exportAuditBtn')?.addEventListener('click', () => window.location.href = '/api/security/export');
+
+        // Initial load
+        showDashboard(isAdmin ? currentUser.role : userRole);
+    </script>
+</body>
+</html>

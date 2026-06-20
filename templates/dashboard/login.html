@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shortcaike Beauty – Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #F7F3EE; font-family: 'Inter', sans-serif; }
+        .card { background: white; border-radius: 1rem; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+        .btn-primary { background-color: #C97A73; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen">
+    <div class="card w-full max-w-md p-8">
+        <h2 class="text-2xl font-serif font-semibold text-center mb-6">Dashboard Login</h2>
+        {% if error %}
+            <div class="bg-red-100 text-red-700 p-3 rounded mb-4">{{ error }}</div>
+        {% endif %}
+        <form method="post">
+            <div class="mb-4">
+                <label class="block text-sm font-medium mb-1">Username</label>
+                <input type="text" name="username" class="w-full border rounded p-2" required>
+            </div>
+            <div class="mb-6">
+                <label class="block text-sm font-medium mb-1">Password</label>
+                <input type="password" name="password" class="w-full border rounded p-2" required>
+            </div>
+            <button type="submit" class="btn-primary w-full">Login</button>
+        </form>
+    </div>
+</body>
+</html>
